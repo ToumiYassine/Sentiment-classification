@@ -1,0 +1,108 @@
+schema: '2.0'
+stages:
+  prepare_data:
+    cmd: python prepare_data.py
+    deps:
+    - path: IMDB Dataset.csv
+      hash: md5
+      md5: 308443a50e5c993e7b8a1cdb95750026
+      size: 66212309
+    - path: prepare_data.py
+      hash: md5
+      md5: 4d9dd5a9c2ec475cd751bf15194941de
+      size: 639
+    params:
+      params.yaml:
+        data:
+          csv_file_path: ./IMDB Dataset.csv
+          test_set_ratio: 0.3
+          train_csv_save_path: ./train.csv
+          test_csv_save_path: ./test.csv
+    outs:
+    - path: test.csv
+      hash: md5
+      md5: 894156d804ff92f7c0f39fe94b9ce47f
+      size: 20067457
+    - path: train.csv
+      hash: md5
+      md5: cef7ec9dfb2009a9f64293451e2ee5d2
+      size: 46244881
+  make_features:
+    cmd: python make_features.py
+    deps:
+    - path: make_features.py
+      hash: md5
+      md5: 9869dc24d7c031befe75e7bc3c56250e
+      size: 885
+    - path: test.csv
+      hash: md5
+      md5: 894156d804ff92f7c0f39fe94b9ce47f
+      size: 20067457
+    - path: train.csv
+      hash: md5
+      md5: cef7ec9dfb2009a9f64293451e2ee5d2
+      size: 46244881
+    params:
+      params.yaml:
+        features:
+          vectorizer: tfidf-vectorizer
+          train_features_save_path: ./train.joblib
+          test_features_save_path: ./test.joblib
+    outs:
+    - path: test.joblib
+      hash: md5
+      md5: 01178344279c6d541725b019a1bc7655
+      size: 15972091
+    - path: train.joblib
+      hash: md5
+      md5: 1113a504c2d765d7bac889b632eeaa8c
+      size: 37248763
+  train:
+    cmd: python train.py
+    deps:
+    - path: train.csv
+      hash: md5
+      md5: cef7ec9dfb2009a9f64293451e2ee5d2
+      size: 46244881
+    - path: train.joblib
+      hash: md5
+      md5: 1113a504c2d765d7bac889b632eeaa8c
+      size: 37248763
+    - path: train.py
+      hash: md5
+      md5: 0df17f6221e292b967cc56aa9551b2d9
+      size: 657
+    outs:
+    - path: model.joblib
+      hash: md5
+      md5: 253a65635e5e9a5a2f35b89c9a587c80
+      size: 697519
+  evaluate:
+    cmd: python evaluate.py
+    deps:
+    - path: evaluate.py
+      hash: md5
+      md5: 7596c01a7d51fec4f587aa0224f4e3fa
+      size: 917
+    - path: model.joblib
+      hash: md5
+      md5: 253a65635e5e9a5a2f35b89c9a587c80
+      size: 697519
+    - path: test.csv
+      hash: md5
+      md5: 894156d804ff92f7c0f39fe94b9ce47f
+      size: 20067457
+    - path: test.joblib
+      hash: md5
+      md5: 01178344279c6d541725b019a1bc7655
+      size: 15972091
+    params:
+      params.yaml:
+        evaluate:
+          metric: accuracy
+          results_save_path: ./results.yaml
+    outs:
+    - path: results.yaml
+      hash: md5
+      md5: 80a0c5193e27b5fc98fc7b73896c985f
+      size: 16
